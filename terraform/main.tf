@@ -68,6 +68,7 @@ resource "aws_instance" "visitor_counter" {
   user_data = templatefile("${path.module}/user_data.sh", {
     dockerhub_user = var.dockerhub_user
     image_version  = var.image_version
+    redis_host     = var.redis_host
   })
 
   tags = {

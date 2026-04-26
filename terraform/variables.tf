@@ -24,3 +24,8 @@ variable "image_version" {
   type    = string
   default = "v1"
 }
+
+variable "redis_host" {
+  description = "ElastiCache Redis endpoint"
+  type        = string
+}
