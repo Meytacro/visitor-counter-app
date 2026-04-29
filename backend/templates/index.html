@@ -5,20 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>visitcounterapp</title>
 
-    <!-- Open Graph -->
     <meta property="og:title" content="visitcounterapp">
     <meta property="og:description" content="Simple cloud app deployed with AWS, Docker and Terraform">
     <meta property="og:image" content="https://visitcounterapp.com/static/preview.png">
     <meta property="og:url" content="https://visitcounterapp.com">
     <meta property="og:type" content="website">
 
-    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="visitcounterapp">
     <meta name="twitter:description" content="Simple cloud app deployed with AWS, Docker and Terraform">
     <meta name="twitter:image" content="https://visitcounterapp.com/static/preview.png">
 
-    <!-- Favicon -->
     <link rel="icon" type="image/png" href="/static/navigator_logo.png">
 
     <style>
@@ -79,6 +76,36 @@
             font-weight: bold;
             color: #38bdf8;
             margin-top: 10px;
+            transition: transform 0.2s ease;
+        }
+
+        #counter.updated {
+            transform: scale(1.08);
+        }
+
+        .instance-box {
+            margin: 24px auto 0;
+            padding: 16px;
+            max-width: 460px;
+            border-radius: 16px;
+            background: rgba(15, 23, 42, 0.75);
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            color: #cbd5e1;
+            font-size: 0.9rem;
+        }
+
+        .instance-title {
+            margin-bottom: 8px;
+            color: #93c5fd;
+            font-weight: bold;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+        }
+
+        .instance-value {
+            margin: 4px 0;
+            word-break: break-word;
         }
 
         .stack {
@@ -112,15 +139,15 @@
             }
 
             #counter {
-                font-size: 4rem;
-                font-weight: bold;
-                color: #38bdf8;
-                margin-top: 10px;
-                transition: transform 0.2s ease;
+                font-size: 3rem;
             }
 
-            #counter.updated {
-                transform: scale(1.08);
+            .subtitle {
+                font-size: 1rem;
+            }
+
+            .counter-box {
+                padding: 24px 18px;
             }
         }
     </style>
@@ -142,12 +169,19 @@
             <div id="counter">Loading...</div>
         </div>
 
+        <div class="instance-box">
+            <div class="instance-title">Served by</div>
+            <div class="instance-value">Hostname: <span id="hostname">Loading...</span></div>
+            <div class="instance-value">IP: <span id="instance-ip">Loading...</span></div>
+        </div>
+
         <div class="stack">
             <span>Python Flask</span>
             <span>Docker</span>
             <span>AWS EC2</span>
             <span>Terraform</span>
             <span>ElastiCache Redis</span>
+            <span>Auto Scaling Group</span>
         </div>
 
         <footer>
@@ -189,9 +223,15 @@
             try {
                 const response = await fetch("/visits");
                 const data = await response.json();
+
                 animateCounter(data.visits);
+
+                document.getElementById("hostname").textContent = data.hostname || "unknown";
+                document.getElementById("instance-ip").textContent = data.ip || "unknown";
             } catch (error) {
                 document.getElementById("counter").textContent = "Error";
+                document.getElementById("hostname").textContent = "unavailable";
+                document.getElementById("instance-ip").textContent = "unavailable";
             }
         }
 

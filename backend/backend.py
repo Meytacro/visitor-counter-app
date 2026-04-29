@@ -1,43 +1,77 @@
 from flask import Flask, jsonify, render_template
-import redis
 import os
+import socket
+import redis
 
 app = Flask(__name__)
 
-redis_host = os.getenv("REDIS_HOST", "localhost")
-redis_port = int(os.getenv("REDIS_PORT", 6379))
-redis_ssl = os.getenv("REDIS_SSL", "false").lower() == "true"
+REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
+REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
+REDIS_SSL = os.getenv("REDIS_SSL", "false").lower() == "true"
 
 redis_client = redis.Redis(
-    host=redis_host,
-    port=redis_port,
-    ssl=redis_ssl,
-    decode_responses=True
+    host=REDIS_HOST,
+    port=REDIS_PORT,
+    ssl=REDIS_SSL,
+    decode_responses=True,
+    socket_connect_timeout=5,
+    socket_timeout=5,
 )
+
+
+def instance_info():
+    hostname = socket.gethostname()
+
+    try:
+        ip = socket.gethostbyname(hostname)
+    except socket.gaierror:
+        ip = "unknown"
+
+    return {
+        "hostname": hostname,
+        "ip": ip,
+    }
+
 
 @app.route("/")
 def home():
     return render_template("index.html")
 
+
 @app.route("/health")
 def health():
-    return jsonify({"status": "ok"})
+    try:
+        redis_client.ping()
+        redis_status = "ok"
+    except redis.RedisError:
+        redis_status = "error"
+
+    return jsonify({
+        "status": "ok",
+        "redis": redis_status,
+        **instance_info(),
+    })
+
 
 @app.route("/visits")
 def increment_visits():
     visits = redis_client.incr("visits")
-    return jsonify({"visits": visits})
+
+    return jsonify({
+        "visits": visits,
+        **instance_info(),
+    })
+
 
 @app.route("/visits/current")
 def current_visits():
     visits = redis_client.get("visits")
 
-    if visits is None:
-        visits = 0
-    else:
-        visits = int(visits)
+    return jsonify({
+        "visits": int(visits) if visits else 0,
+        **instance_info(),
+    })
 
-    return jsonify({"visits": visits})
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)

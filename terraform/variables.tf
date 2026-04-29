@@ -29,3 +29,8 @@ variable "redis_host" {
   description = "ElastiCache Redis endpoint"
   type        = string
 }
+
+variable "subnet_ids" {
+  description = "Subnets for the Auto Scaling Group"
+  type        = list(string)
+}
