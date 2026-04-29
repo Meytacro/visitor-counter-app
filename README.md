@@ -1,34 +1,39 @@
 # 🚀 Visitor Counter App
 
-A simple cloud-native visitor counter application built from scratch and deployed to production using modern DevOps tools.
+Production-ready cloud application deployed on AWS with a full DevOps workflow, including HTTPS, custom domain, load balancing and auto scaling.
 
-## 🌐 Overview
+---
 
-This project demonstrates the full lifecycle of a cloud application:
+## 🌐 Live Demo
 
-* Local development
-* Containerization
-* Cloud deployment
-* Infrastructure as Code
-* Scaling with load balancing
+👉 https://visitcounterapp.com
 
-The application counts visits and stores them in Redis, exposing a simple API consumed by a frontend.
+---
+
+## 📌 Project Overview
+
+This project demonstrates how to design, build and deploy a scalable backend service using modern cloud and DevOps practices.
+
+The application exposes a simple API that tracks the number of visits using Redis as a persistent store, served through a fully managed cloud infrastructure.
 
 ---
 
 ## 🧱 Architecture
 
-```
+```text
 Client (Browser)
+        │
+        ▼
+HTTPS (ACM Certificate)
         │
         ▼
 Application Load Balancer (AWS)
         │
         ▼
-Auto Scaling Group (EC2 instances running Docker)
+Auto Scaling Group (EC2 instances)
         │
         ▼
-Flask Backend (Python)
+Docker container (Flask backend)
         │
         ▼
 Redis (AWS ElastiCache)
@@ -38,56 +43,60 @@ Redis (AWS ElastiCache)
 
 ## ⚙️ Tech Stack
 
-* **Backend:** Python (Flask)
-* **Database:** Redis (ElastiCache)
-* **Containerization:** Docker
-* **Cloud Provider:** AWS (EC2, ALB, Auto Scaling)
-* **Infrastructure as Code:** Terraform
-* **CI/CD:** GitHub Actions
-* **Networking:** VPC + Security Groups
+| Layer            | Technology                |
+| ---------------- | ------------------------- |
+| Backend          | Python (Flask)            |
+| Database         | Redis (ElastiCache)       |
+| Containerization | Docker                    |
+| Cloud            | AWS (EC2, ALB, ASG, ACM)  |
+| IaC              | Terraform                 |
+| CI/CD            | GitHub Actions            |
+| Domain & HTTPS   | Custom domain + SSL (ACM) |
 
 ---
 
-## 📦 Features
+## ✨ Key Features
 
-* Visitor counter stored in Redis
-* REST API (`/visits`)
+* REST API with visit counter (`/visits`)
 * Health check endpoint (`/health`)
-* Containerized backend
-* Deployed on AWS EC2
-* Load balanced with ALB
-* Auto Scaling enabled
-* Infrastructure fully managed with Terraform
+* Stateless backend architecture
+* Redis-based persistence
+* Dockerized application
+* Infrastructure provisioned with Terraform
+* Load balancing with AWS Application Load Balancer
+* Auto Scaling Group for high availability
+* HTTPS enabled with custom domain (`visitcounterapp.com`)
+* Zero-downtime deployments using Instance Refresh
 
 ---
 
-## 🚀 Deployment Flow
+## 🚀 Deployment Workflow
 
-1. Build Docker image
-2. Push image to Docker Hub
-3. Terraform provisions infrastructure:
-   * EC2 / Auto Scaling Group
-   * Load Balancer
-   * Security Groups
-4. EC2 instances pull and run the container
-5. Application becomes publicly accessible
+1. Code is pushed to GitHub
+2. GitHub Actions builds the Docker image
+3. Image is pushed to Docker Hub
+4. EC2 instances pull the latest image automatically
+5. Auto Scaling Group manages instance lifecycle
+6. Load Balancer routes HTTPS traffic to healthy instances
 
 ---
 
-## 🔄 CI/CD
+## 🔄 CI/CD Pipeline
 
-GitHub Actions automates:
+Current:
 
-* Building Docker image
-* Pushing to Docker Hub
+* Docker image build
+* Push to Docker Hub
 
-(Next step: automatic deployment + instance refresh)
+Next step:
+
+* Trigger Auto Scaling Instance Refresh automatically after each deployment
 
 ---
 
 ## 📁 Project Structure
 
-```
+```text
 cloudproject/
 ├── backend/
 │   ├── backend.py
@@ -101,47 +110,71 @@ cloudproject/
 ├── terraform/
 │   ├── main.tf
 │   └── user_data.sh
+└── README.md
 ```
 
 ---
 
-## 🧠 What I Learned
+## 📸 Preview
 
-* How to deploy a real application in AWS
-* Container lifecycle with Docker
-* Infrastructure provisioning with Terraform
-* Load balancing and scaling concepts
-* How Auto Scaling Groups replace manual EC2 management
-* Basics of CI/CD pipelines
+![App Preview](backend/static/preview.png)
 
 ---
 
-## 🌍 Live Demo
+## 🧠 Engineering Decisions
 
-👉 https://visitcounterapp.com
+### Why Redis?
+
+* In-memory storage → extremely fast
+* Ideal for counters
+* Managed service (ElastiCache) reduces operational overhead
+
+### Why HTTPS + Custom Domain?
+
+* Real production setup
+* Secure communication (SSL/TLS)
+* Professional deployment (not raw IP)
+
+### Why Auto Scaling Group?
+
+* Eliminates manual EC2 management
+* Provides high availability
+* Enables rolling updates with zero downtime
+
+### Why Terraform?
+
+* Infrastructure reproducibility
+* Version-controlled cloud configuration
+* Prevents configuration drift
+
+### Why Docker?
+
+* Consistent execution environment
+* Simplifies deployment process
+* Enables CI/CD automation
 
 ---
 
-## 📌 Future Improvements
+## 📊 What This Project Demonstrates
 
-* Automatic deployment (CI/CD → ASG refresh)
-* HTTPS with ACM + Route53
-* Custom domain
-* Monitoring (CloudWatch dashboards)
-* Logging improvements
+* End-to-end cloud deployment
+* Infrastructure as Code (IaC)
+* Containerized backend services
+* Load balancing and horizontal scaling
+* HTTPS configuration with ACM
+* Domain-based production deployment
+* CI/CD pipeline fundamentals
+
+---
+
+## 🔮 Future Improvements
+
+* Fully automated deployments (CI/CD → ASG refresh)
 * Blue/Green deployments
-
----
-
-## 🤝 Contributing
-
-This is a personal learning project, but suggestions are welcome.
-
----
-
-## 📄 License
-
-MIT License
+* Monitoring with CloudWatch dashboards
+* Centralized logging
+* Rate limiting / API protection
+* CDN (CloudFront)
 
 ---
 
@@ -149,6 +182,10 @@ MIT License
 
 **Marc Ropero Soberbio**
 
-Cloud & DevOps enthusiast building real-world projects.
+Cloud & DevOps Engineer (in progress) focused on building real-world infrastructure projects.
 
 ---
+
+## 📄 License
+
+MIT License
