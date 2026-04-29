@@ -20,23 +20,31 @@ The application exposes a simple API that tracks the number of visits using Redi
 
 ## 🧱 Architecture
 
-```text
-Client (Browser)
-        │
-        ▼
-HTTPS (ACM Certificate)
-        │
-        ▼
-Application Load Balancer (AWS)
-        │
-        ▼
-Auto Scaling Group (EC2 instances)
-        │
-        ▼
-Docker container (Flask backend)
-        │
-        ▼
-Redis (AWS ElastiCache)
+```mermaid
+flowchart TD
+    A[Client / Browser] -->|HTTPS| B[ACM Certificate]
+    B --> C[Application Load Balancer]
+    C --> D[Auto Scaling Group]
+    D --> E1[EC2 Instance - Docker + Flask backend]
+    D --> E2[EC2 Instance - Docker + Flask backend]
+    E1 --> F[Redis - AWS ElastiCache]
+    E2 --> F
+```
+
+---
+
+## 🔄 CI/CD Flow
+
+```mermaid
+flowchart LR
+    A[Push] --> B[GitHub Actions]
+    B --> C[Build Image]
+    C --> D[Push Image]
+    D --> E[Refresh ASG]
+    E --> F[New EC2]
+    F --> G[Pull Image]
+    G --> H[Route Traffic]
+    H --> I[Terminate Old]
 ```
 
 ---
@@ -67,30 +75,48 @@ Redis (AWS ElastiCache)
 * Auto Scaling Group for high availability
 * HTTPS enabled with custom domain (`visitcounterapp.com`)
 * Zero-downtime deployments using Instance Refresh
+* Fully automated CI/CD pipeline
 
 ---
 
 ## 🚀 Deployment Workflow
 
-1. Code is pushed to GitHub
-2. GitHub Actions builds the Docker image
-3. Image is pushed to Docker Hub
-4. EC2 instances pull the latest image automatically
-5. Auto Scaling Group manages instance lifecycle
-6. Load Balancer routes HTTPS traffic to healthy instances
+### 🔄 What happens on every push
+
+1. Code is pushed to GitHub  
+2. GitHub Actions builds the Docker image  
+3. Image is pushed to Docker Hub  
+4. AWS triggers an Auto Scaling Instance Refresh  
+5. New EC2 instances are launched  
+6. Instances pull the latest image automatically  
+7. Load Balancer routes traffic to new instances  
+8. Old instances are terminated  
+
+👉 No manual intervention required  
+👉 Fully automated rolling deployments  
 
 ---
 
 ## 🔄 CI/CD Pipeline
 
-Current:
+The pipeline is fully automated and reproducible:
 
-* Docker image build
-* Push to Docker Hub
+- Docker image build  
+- Push to Docker Hub  
+- Automatic deployment on AWS  
+- Rolling updates via Auto Scaling Group (Instance Refresh)  
 
-Next step:
+### 🎯 Trigger conditions
 
-* Trigger Auto Scaling Instance Refresh automatically after each deployment
+The pipeline runs only when relevant files change:
+
+- `backend/**`  
+- `Dockerfile`  
+- `docker-compose.prod.yml`  
+- `.github/workflows/**`  
+
+👉 Avoids unnecessary deployments (e.g. README changes)  
+👉 Ensures efficient and controlled releases 
 
 ---
 
@@ -161,20 +187,21 @@ cloudproject/
 * Infrastructure as Code (IaC)
 * Containerized backend services
 * Load balancing and horizontal scaling
-* HTTPS configuration with ACM
-* Domain-based production deployment
-* CI/CD pipeline fundamentals
+* Stateless architecture with externalized state
+* Fully automated CI/CD pipeline
+* Rolling deployments with zero downtime
+* Reproducible cloud infrastructure
 
 ---
 
 ## 🔮 Future Improvements
 
-* Fully automated deployments (CI/CD → ASG refresh)
-* Blue/Green deployments
-* Monitoring with CloudWatch dashboards
+* Monitoring and alerting (CloudWatch)
 * Centralized logging
-* Rate limiting / API protection
+* Blue/Green deployments
+* Security improvements (IAM, networking)
 * CDN (CloudFront)
+* API protection and rate limiting
 
 ---
 

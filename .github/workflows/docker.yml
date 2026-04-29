@@ -6,6 +6,9 @@ on:
       - main
     paths:
       - "backend/**"
+      - 'docker-compose.prod.yml'
+      - 'Dockerfile'
+      - '.github/workflows/**'
 
 jobs:
   build-and-push:
