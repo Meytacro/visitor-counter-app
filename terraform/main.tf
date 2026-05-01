@@ -130,18 +130,25 @@ resource "aws_autoscaling_group" "visitor_counter_asg" {
 }
 
 # -----------------------------
-# AUTO SCALING POLICY - CPU
+# AUTO SCALING POLICY - ALB REQUESTS
 # -----------------------------
-resource "aws_autoscaling_policy" "visitor_counter_cpu_scaling" {
-  name                   = "visitor-counter-cpu-scaling"
+
+data "aws_lb" "visitor_counter_alb" {
+  name = "visitor-counter-alb"
+}
+
+resource "aws_autoscaling_policy" "visitor_counter_request_scaling" {
+  name                   = "visitor-counter-request-count-scaling"
   autoscaling_group_name = aws_autoscaling_group.visitor_counter_asg.name
   policy_type            = "TargetTrackingScaling"
 
   target_tracking_configuration {
     predefined_metric_specification {
-      predefined_metric_type = "ASGAverageCPUUtilization"
+      predefined_metric_type = "ALBRequestCountPerTarget"
+
+      resource_label = "${data.aws_lb.visitor_counter_alb.arn_suffix}/${data.aws_lb_target_group.visitor_counter_tg.arn_suffix}"
     }
 
-    target_value = 50.0
+    target_value = 100
   }
 }
