@@ -31,7 +31,7 @@ data "aws_ami" "amazon_linux_2023" {
 }
 
 # -----------------------------
-# EXISTING TARGET GROUP
+# TARGET GROUP USED BY THE AUTO SCALING GROUP
 # -----------------------------
 data "aws_lb_target_group" "visitor_counter_tg" {
   name = "visitor-counter-tg-80"
@@ -107,7 +107,7 @@ resource "aws_autoscaling_group" "visitor_counter_asg" {
   name                = "visitor-counter-asg"
   desired_capacity    = 1
   min_size            = 1
-  max_size            = 2
+  max_size            = 3
   vpc_zone_identifier = var.subnet_ids
 
   target_group_arns = [
@@ -130,37 +130,18 @@ resource "aws_autoscaling_group" "visitor_counter_asg" {
 }
 
 # -----------------------------
-# ⚠️ ACTUAL EC2 (DO NOT DELETE YET)
+# AUTO SCALING POLICY - CPU
 # -----------------------------
-resource "aws_instance" "visitor_counter" {
-  ami                    = data.aws_ami.amazon_linux_2023.id
-  instance_type          = var.instance_type
-  key_name               = var.key_name
-  vpc_security_group_ids = [aws_security_group.visitor_counter_sg.id]
+resource "aws_autoscaling_policy" "visitor_counter_cpu_scaling" {
+  name                   = "visitor-counter-cpu-scaling"
+  autoscaling_group_name = aws_autoscaling_group.visitor_counter_asg.name
+  policy_type            = "TargetTrackingScaling"
 
-  user_data = templatefile("${path.module}/user_data.sh", {
-    dockerhub_user = var.dockerhub_user
-    image_version  = var.image_version
-    redis_host     = var.redis_host
-  })
+  target_tracking_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "ASGAverageCPUUtilization"
+    }
 
-  tags = {
-    Name = "visitor-counter-ec2"
+    target_value = 50.0
   }
-}
-
-# -----------------------------
-# ⚠️ EIP (maintain for the moment)
-# -----------------------------
-resource "aws_eip" "visitor_counter_ip" {
-  domain = "vpc"
-
-  tags = {
-    Name = "visitor-counter-eip"
-  }
-}
-
-resource "aws_eip_association" "visitor_counter_assoc" {
-  instance_id   = aws_instance.visitor_counter.id
-  allocation_id = aws_eip.visitor_counter_ip.id
 }

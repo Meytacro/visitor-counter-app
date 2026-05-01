@@ -1,7 +1,7 @@
-output "elastic_ip" {
-  value = aws_eip.visitor_counter_ip.public_ip
+output "asg_name" {
+  value = aws_autoscaling_group.visitor_counter_asg.name
 }
 
-output "public_dns" {
-  value = aws_instance.visitor_counter.public_dns
+output "target_group_arn" {
+  value = data.aws_lb_target_group.visitor_counter_tg.arn
 }
