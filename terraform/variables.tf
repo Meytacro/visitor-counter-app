@@ -34,3 +34,13 @@ variable "subnet_ids" {
   description = "Subnets for the Auto Scaling Group"
   type        = list(string)
 }
+
+variable "vpc_id" {
+  description = "VPC ID where the target group will be created"
+  type        = string
+}
+
+variable "domain_name" {
+  description = "Main domain name"
+  type        = string
+}
